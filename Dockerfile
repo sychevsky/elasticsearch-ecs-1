@@ -1,5 +1,15 @@
-FROM elasticsearch:5.0.0-rc1
+FROM elasticsearch:5.0.0
 MAINTAINER Madhukar Thota <madhukar.thota@gmail.com>
 WORKDIR /usr/share/elasticsearch
-RUN elasticsearch-plugin install discovery-ec2
+
+# Install EC2 Discovery Plugin
+RUN elasticsearch-plugin install --batch discovery-ec2
+
+# Install S3 Repository plugin for Snapshot/Restore
+RUN elasticsearch-plugin install --batch repository-s3
+
+# Install Ingest Plugins (GeoIP and UserAgent )
+RUN elasticsearch-plugin install --batch ingest-geoip
+RUN elasticsearch-plugin install --batch ingest-user-agent
+
 COPY docker-entrypoint.sh /docker-entrypoint.sh
