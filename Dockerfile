@@ -5,11 +5,4 @@ WORKDIR /usr/share/elasticsearch
 # Install EC2 Discovery Plugin
 RUN elasticsearch-plugin install --batch discovery-ec2
 
-# Install S3 Repository plugin for Snapshot/Restore
-RUN elasticsearch-plugin install --batch repository-s3
-
-# Install Ingest Plugins (GeoIP and UserAgent )
-RUN elasticsearch-plugin install --batch ingest-geoip
-RUN elasticsearch-plugin install --batch ingest-user-agent
-
 COPY docker-entrypoint.sh /docker-entrypoint.sh
