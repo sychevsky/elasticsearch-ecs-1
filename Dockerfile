@@ -1,4 +1,4 @@
-FROM elasticsearch:5.0.0
+FROM elasticsearch:5.0.1
 MAINTAINER Madhukar Thota <madhukar.thota@gmail.com>
 WORKDIR /usr/share/elasticsearch
 
