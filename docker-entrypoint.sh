@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Run Elasticsearch and allow setting default settings via env vars
+#
+# e.g. Setting the env var cluster.name=testcluster
+#
+# will cause Elasticsearch to be invoked with -Ecluster.name=testcluster
+#
+# see https://www.elastic.co/guide/en/elasticsearch/reference/5.0/settings.html#_setting_default_settings
+
 set -e
 
 # Add elasticsearch as command if needed
@@ -13,7 +21,7 @@ if [ "$1" = 'elasticsearch' -a "$(id -u)" = '0' ]; then
 	# Change the ownership of /usr/share/elasticsearch/data to elasticsearch
 	chown -R elasticsearch:elasticsearch /usr/share/elasticsearch/data
 
-	set -- gosu elasticsearch "$@"
+	set -- su-exec elasticsearch "$@"
 	#exec gosu elasticsearch "$BASH_SOURCE" "$@"
 fi
 
@@ -32,11 +40,12 @@ do
     fi
 done < <(env)
 
-# ECS will report the docker interface without help, so we override that with host's private ip
-AWS_PRIVATE_IP=`curl http://169.254.169.254/latest/meta-data/local-ipv4`
-set -- "$@" -Enetwork.publish_host=$AWS_PRIVATE_IP ${es_opts}
+if [ -f /sys/hypervisor/uuid ] && [ `head -c 3 /sys/hypervisor/uuid` == ec2 ]; then
+  AWS_PRIVATE_IP=$(wget -qO- http://169.254.169.254/latest/meta-data/local-ipv4)
+  AWS_PRIVATE_HOSTNAME=$(wget -qO- http://169.254.169.254/latest/meta-data/local-hostname)
+  set -- "$@" ${es_opts} -Enetwork.publish_host=$AWS_PRIVATE_IP -Enode.name=$AWS_PRIVATE_HOSTNAME
+else
+  set -- "$@" ${es_opts}
+fi
 
-# As argument is not related to elasticsearch,
-# then assume that user wants to run his own process,
-# for example a `bash` shell to explore this image
 exec "$@"
