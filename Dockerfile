@@ -1,4 +1,4 @@
-FROM elasticsearch:5.1.2-alpine
+FROM elasticsearch:5.2.0-alpine
 MAINTAINER Madhukar Thota <madhukar.thota@gmail.com>
 WORKDIR /usr/share/elasticsearch
 
